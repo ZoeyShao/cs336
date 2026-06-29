@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tokenization 与计量速查</title>
+  <style>
+    :root {
+      --ink: #17212b;
+      --muted: #59636e;
+      --line: #d9e0e7;
+      --soft: #f7f9fb;
+      --accent: #8b2f38;
+      --code: #eef2f5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: white;
+      font: 16px/1.58 ui-serif, Georgia, "Times New Roman", "Noto Serif CJK SC", serif;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 46px 28px 70px;
+    }
+    h1, h2, h3, .meta, table {
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+    h1 { margin: 0 0 8px; font-size: 32px; line-height: 1.15; }
+    h2 {
+      margin: 34px 0 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      font-size: 21px;
+      line-height: 1.2;
+    }
+    h3 { margin: 18px 0 8px; font-size: 17px; }
+    p { margin: 0 0 13px; }
+    a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+    code {
+      background: var(--code);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .9em;
+    }
+    .meta { color: var(--muted); font-size: 14px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 16px 0;
+    }
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      background: var(--soft);
+      break-inside: avoid;
+    }
+    .box strong {
+      display: block;
+      margin-bottom: 5px;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    @media (max-width: 720px) {
+      main { padding: 32px 18px 56px; }
+      h1 { font-size: 28px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+    @media print {
+      main { max-width: none; padding: 24px; }
+      a { color: black; }
+      .box { background: white; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Tokenization 与语言模型计量速查</h1>
+    <p class="meta">配套 lesson: <a href="../lessons/0001-tokenization-accounting.html">第一课：Tokenization 与语言模型计量</a></p>
+  </header>
+
+  <section>
+    <h2>词表与 token</h2>
+    <div class="grid">
+      <div class="box">
+        <strong>Token</strong>
+        tokenizer 输出的离散符号。一个 token 可能是一个词、词片段、标点、空格模式、字节片段或特殊符号。
+      </div>
+      <div class="box">
+        <strong>Vocabulary size V</strong>
+        token id 的取值范围。它决定 embedding table 的行数，也通常影响输出 softmax 的维度。
+      </div>
+      <div class="box">
+        <strong>Context length T</strong>
+        模型一次前向最多处理的 token 数。它不是字符数，也不是自然语言词数。
+      </div>
+      <div class="box">
+        <strong>Byte fallback</strong>
+        tokenizer 无法直接覆盖某些文本时，可退回到 byte 级表示，避免 out-of-vocabulary 崩掉。
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>最常用公式</h2>
+    <table>
+      <thead>
+        <tr><th>问题</th><th>快速估算</th><th>备注</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Token embedding 参数</td>
+          <td><code>V * d_model</code></td>
+          <td>每个 token id 一行向量。</td>
+        </tr>
+        <tr>
+          <td>LM head 参数</td>
+          <td><code>V * d_model</code></td>
+          <td>若与 embedding tied，则共享这块权重。</td>
+        </tr>
+        <tr>
+          <td>每步训练 token 数</td>
+          <td><code>batch_size * seq_len</code></td>
+          <td>有 gradient accumulation 或 data parallel 时再乘对应因子。</td>
+        </tr>
+        <tr>
+          <td>总训练 token 数</td>
+          <td><code>tokens_per_step * steps</code></td>
+          <td>scaling law 讨论中最常用的数据量单位。</td>
+        </tr>
+        <tr>
+          <td>Perplexity</td>
+          <td><code>exp(loss)</code></td>
+          <td>前提是 loss 以 nats/token 计。</td>
+        </tr>
+        <tr>
+          <td>Dense Transformer 训练 FLOPs 粗估</td>
+          <td><code>~ 6 * params * tokens</code></td>
+          <td>只作预算量级判断；具体实现会受序列长度、attention 和硬件效率影响。</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>检查清单</h2>
+    <ol>
+      <li>特殊 token 是否明确：BOS、EOS、PAD、UNK 是否真的需要？</li>
+      <li>训练和推理是否使用同一个 tokenizer 版本？</li>
+      <li>loss 是否按预测 token 平均，而不是按 batch 或 sequence 总和误读？</li>
+      <li>比较两个模型 loss 时，tokenizer 是否一致？如果不一致，是否需要 bits-per-byte 等更稳的单位？</li>
+      <li>估算训练预算时，tokens、steps、batch、context length 有没有混用？</li>
+    </ol>
+  </section>
+</main>
+</body>
+</html>

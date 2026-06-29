@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第一课：Tokenization 与语言模型计量</title>
+  <style>
+    :root {
+      --ink: #17212b;
+      --muted: #59636e;
+      --line: #d9e0e7;
+      --soft: #f7f9fb;
+      --note: #fff7df;
+      --accent: #8b2f38;
+      --ok: #1f6f62;
+      --bad: #a53b32;
+      --code: #eef2f5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: white;
+      font: 17px/1.62 ui-serif, Georgia, "Times New Roman", "Noto Serif CJK SC", serif;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 48px 28px 72px;
+    }
+    h1, h2, h3, button, input, .meta, .pill, table {
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 34px;
+      line-height: 1.15;
+    }
+    h2 {
+      margin: 40px 0 14px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      font-size: 22px;
+      line-height: 1.2;
+    }
+    h3 {
+      margin: 22px 0 8px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    p { margin: 0 0 14px; }
+    a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+    code {
+      background: var(--code);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .9em;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .lede {
+      max-width: 760px;
+      margin-top: 22px;
+      font-size: 20px;
+    }
+    .callout {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+    }
+    .note {
+      border-left-color: #b68b00;
+      background: var(--note);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: var(--soft);
+    }
+    .box strong {
+      display: block;
+      margin-bottom: 5px;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+    ol, ul { padding-left: 22px; }
+    li { margin: 7px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 8px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .exercise {
+      margin: 18px 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: white;
+    }
+    label {
+      display: block;
+      margin: 12px 0 5px;
+      color: var(--muted);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 14px;
+    }
+    input {
+      width: 100%;
+      max-width: 220px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-size: 15px;
+    }
+    button {
+      margin-top: 12px;
+      border: 0;
+      border-radius: 6px;
+      padding: 9px 13px;
+      color: white;
+      background: var(--accent);
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .feedback {
+      min-height: 24px;
+      margin-top: 12px;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 14px;
+    }
+    .ok { color: var(--ok); }
+    .bad { color: var(--bad); }
+    .pill {
+      display: inline-block;
+      margin: 3px 4px 3px 0;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 1px 8px;
+      color: var(--muted);
+      background: white;
+      font-size: 12px;
+    }
+    @media (max-width: 720px) {
+      main { padding: 32px 18px 56px; }
+      h1 { font-size: 28px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>第一课：Tokenization 与语言模型计量</h1>
+    <p class="meta">CS336 自学课 | 预计 25 分钟 | 对应 Lecture 1: Overview, Tokenization</p>
+    <p class="lede">
+      今天只学一件事：语言模型不是直接吃“词”或“句子”，而是吃 token。token 是后面所有东西的计量单位：loss、训练数据量、context length、embedding 参数、softmax 成本、scaling law，都会绕回 token。
+    </p>
+  </header>
+
+  <section>
+    <h2>这节课要拿下什么</h2>
+    <div class="grid">
+      <div class="box">
+        <strong>知识</strong>
+        解释为什么现代 LM 使用 subword/byte-level tokenization，而不是固定词表的 word tokenization。
+      </div>
+      <div class="box">
+        <strong>技能</strong>
+        给定 vocab size 和 hidden size，快速估算 embedding 与 LM head 参数量。
+      </div>
+      <div class="box">
+        <strong>判断</strong>
+        看见 “10B tokens”“context length 4096”“loss 2.4” 时，知道它们分别在描述什么。
+      </div>
+      <div class="box">
+        <strong>产出</strong>
+        写下自己的第一条训练栈检查清单：输入文本如何变成训练 batch。
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>主资源</h2>
+    <p>
+      先看官方视频的 Lecture 1 前半部分，再回来做下面的回忆练习：
+      <a href="https://www.youtube.com/watch?v=JuoVZkPBiKk">Stanford CS336 Lecture 1: Overview, Tokenization</a>。
+      做实现时对应
+      <a href="https://github.com/stanford-cs336/assignment1-basics">Assignment 1: Basics</a>。
+    </p>
+    <p>
+      公式速查页：<a href="../reference/0002-tokenization-accounting.html">Tokenization 与计量速查</a>。
+      课程总地图：<a href="../reference/0001-cs336-course-map.html">CS336 Course Map</a>。
+    </p>
+  </section>
+
+  <section>
+    <h2>核心模型</h2>
+    <p>
+      一个最小 language model pipeline 可以写成：
+      <code>raw text -> tokenizer -> token ids -> Transformer -> logits -> cross entropy</code>。
+      第一课只盯住前两步和最后的计量方式。
+    </p>
+    <table>
+      <thead>
+        <tr><th>对象</th><th>它回答的问题</th><th>常见坑</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Tokenizer</td>
+          <td>文本如何变成整数序列？</td>
+          <td>把 token 当 word；忽略 Unicode、byte fallback、特殊 token。</td>
+        </tr>
+        <tr>
+          <td>Vocabulary</td>
+          <td>整数 id 的取值范围有多大？</td>
+          <td>vocab 越大，embedding 和输出层通常越贵。</td>
+        </tr>
+        <tr>
+          <td>Context length</td>
+          <td>一次前向最多看多少 token？</td>
+          <td>把字符数、词数、token 数混为一谈。</td>
+        </tr>
+        <tr>
+          <td>Loss</td>
+          <td>模型平均每个预测 token 错多少？</td>
+          <td>忘记 loss 的单位通常是 per token。</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      <strong>第一课的金句：</strong>
+      tokenization 不是预处理小事，而是模型接口。接口一变，训练样本长度、embedding 参数、loss 可比性、数据预算都会变。
+    </div>
+  </section>
+
+  <section>
+    <h2>小练习 1：参数量心算</h2>
+    <p>
+      只看 token embedding 和输出层。设词表大小为 <code>V</code>，hidden size 为 <code>d</code>。
+      如果 embedding 与 LM head 不共享权重，参数大约是 <code>2 * V * d</code>；共享权重时大约是 <code>V * d</code>。
+    </p>
+    <div class="exercise">
+      <h3>计算</h3>
+      <p>默认用 GPT-2 风格词表大小 <code>50257</code>，hidden size <code>768</code>。填入以百万为单位的参数量，四舍五入到 1 位小数。</p>
+      <label for="tied">共享权重：V * d = ? M</label>
+      <input id="tied" inputmode="decimal" placeholder="例如 38.6">
+      <label for="untied">不共享权重：2 * V * d = ? M</label>
+      <input id="untied" inputmode="decimal" placeholder="例如 77.2">
+      <br>
+      <button type="button" onclick="checkParams()">检查</button>
+      <p id="param-feedback" class="feedback"></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>小练习 2：单位辨认</h2>
+    <p>把下面这些量先按单位分类，后面学 scaling law 和 systems 时会反复用到。</p>
+    <div class="exercise">
+      <h3>判断</h3>
+      <p><span class="pill">10B training tokens</span> <span class="pill">context length 4096</span> <span class="pill">loss 2.4 nats/token</span> <span class="pill">vocab 50k</span></p>
+      <label for="unit-answer">哪个量最直接决定 embedding table 的行数？</label>
+      <input id="unit-answer" placeholder="输入一个英文词">
+      <br>
+      <button type="button" onclick="checkUnit()">检查</button>
+      <p id="unit-feedback" class="feedback"></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>课后输出</h2>
+    <ol>
+      <li>看完 Lecture 1 中 tokenizer 部分。</li>
+      <li>打开 Assignment 1，看 tokenizer 需要实现哪些接口，不急着写完整代码。</li>
+      <li>写下这条检查链：<code>raw text -> normalized bytes/chars -> token ids -> batches -> labels</code>。每个箭头旁边标出可能出错的地方。</li>
+      <li>用自己的话回答：为什么 “模型训练了 1T tokens” 比 “模型训练了很多文本” 更有信息量？</li>
+    </ol>
+    <div class="callout note">
+      如果哪个环节不顺，直接问 agent。比较好的问题长这样：“BPE merge 为什么会改变训练序列长度？”或者“loss per token 为什么不能直接跨 tokenizer 比？”
+    </div>
+  </section>
+</main>
+
+<script>
+  function near(value, target) {
+    const parsed = Number(String(value).trim());
+    return Number.isFinite(parsed) && Math.abs(parsed - target) <= 0.15;
+  }
+
+  function checkParams() {
+    const tied = document.getElementById("tied").value;
+    const untied = document.getElementById("untied").value;
+    const feedback = document.getElementById("param-feedback");
+    const okTied = near(tied, 38.6);
+    const okUntied = near(untied, 77.2);
+    if (okTied && okUntied) {
+      feedback.className = "feedback ok";
+      feedback.textContent = "对。只这两块就已经接近 77M 参数；vocab size 不是小常数。";
+    } else {
+      feedback.className = "feedback bad";
+      feedback.textContent = "再算一次：50257 * 768 / 1e6 = 38.6；不共享时乘以 2。";
+    }
+  }
+
+  function checkUnit() {
+    const value = document.getElementById("unit-answer").value.trim().toLowerCase();
+    const feedback = document.getElementById("unit-feedback");
+    if (["vocab", "vocabulary", "vocab size"].includes(value)) {
+      feedback.className = "feedback ok";
+      feedback.textContent = "对。vocab size 决定 token id 空间，也决定 embedding table 的行数。";
+    } else {
+      feedback.className = "feedback bad";
+      feedback.textContent = "提示：embedding table 是按 token id 查表，行数等于词表大小。";
+    }
+  }
+</script>
+</body>
+</html>
