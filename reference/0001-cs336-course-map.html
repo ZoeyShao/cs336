@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CS336 Course Map</title>
+  <style>
+    :root {
+      --ink: #1d252c;
+      --muted: #5b6670;
+      --line: #d8dee4;
+      --soft: #f6f8fa;
+      --accent: #8b2f38;
+      --accent-2: #1f6f62;
+      --code: #eef2f5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: white;
+      font: 16px/1.58 ui-serif, Georgia, "Times New Roman", "Noto Serif CJK SC", serif;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 48px 28px 72px;
+    }
+    h1, h2, h3 {
+      line-height: 1.18;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 34px;
+    }
+    h2 {
+      margin: 40px 0 14px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      font-size: 22px;
+    }
+    h3 {
+      margin: 22px 0 8px;
+      font-size: 18px;
+    }
+    p { margin: 0 0 14px; }
+    a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+    .meta {
+      color: var(--muted);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 14px;
+    }
+    .lede {
+      max-width: 760px;
+      margin-top: 24px;
+      font-size: 19px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0 8px;
+    }
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: var(--soft);
+      break-inside: avoid;
+    }
+    .box strong {
+      display: block;
+      margin-bottom: 4px;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+    ol, ul { padding-left: 22px; }
+    li { margin: 7px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 8px;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 8px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    code {
+      background: var(--code);
+      border-radius: 4px;
+      padding: 1px 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .9em;
+    }
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 1px 8px;
+      color: var(--accent-2);
+      background: white;
+      font-size: 12px;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      white-space: nowrap;
+    }
+    .compact li { margin: 4px 0; }
+    @media (max-width: 720px) {
+      main { padding: 32px 18px 56px; }
+      h1 { font-size: 28px; }
+      .grid { grid-template-columns: 1fr; }
+      table { font-size: 13px; }
+    }
+    @media print {
+      main { max-width: none; padding: 24px; }
+      a { color: black; }
+      .box { background: white; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Stanford CS336: Language Modeling from Scratch</h1>
+    <p class="meta">课程地图 | Spring 2026 | 整理日期：2026-06-28</p>
+    <p class="lede">
+      这门课的核心价值不是“又讲一遍 LLM”，而是把语言模型训练栈拆成可以实现、测量和取舍的工程系统：数据进入 tokenizer，token 进入 Transformer，训练跑在 GPU 和分布式系统上，scaling law 指导预算，评测暴露能力边界，post-training 改变模型行为。
+    </p>
+  </header>
+
+  <h2>一眼看懂</h2>
+  <div class="grid">
+    <div class="box">
+      <strong>目标</strong>
+      从零开发自己的语言模型：数据收集与清洗、tokenization、Transformer 架构、训练、评测、部署前判断。
+    </div>
+    <div class="box">
+      <strong>难点</strong>
+      作业代码量很大，且系统部分要求理解 GPU memory hierarchy、profiling、Triton kernel 和 distributed training。
+    </div>
+    <div class="box">
+      <strong>适合你怎么学</strong>
+      先用课程补 implementation gap，再用作业暴露自己对 tensor shape、数值稳定性、资源估算和训练数据质量的盲点。
+    </div>
+    <div class="box">
+      <strong>不要怎么学</strong>
+      不建议只刷视频。CS336 的“肉”在作业和实验：每个模块都要能写、能测、能解释失败原因。
+    </div>
+  </div>
+
+  <h2>官方入口</h2>
+  <ul class="compact">
+    <li><a href="https://cs336.stanford.edu/">Spring 2026 official course site</a></li>
+    <li><a href="https://www.youtube.com/playlist?list=PLoROMvodv4rMqXOcazWaTUHhq-yembLCV">Spring 2026 YouTube playlist</a></li>
+    <li><a href="https://github.com/stanford-cs336/lectures">Spring 2026 lecture materials</a></li>
+    <li><a href="https://github.com/stanford-cs336">stanford-cs336 GitHub organization</a></li>
+  </ul>
+
+  <h2>课程主线</h2>
+  <table>
+    <thead>
+      <tr><th>模块</th><th>Lectures</th><th>你应该带走什么</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tag">Basics</span></td>
+        <td>1-4</td>
+        <td>Tokenization、resource accounting、Transformer architecture、attention alternatives、MoE。重点是 shape、参数量、FLOPs、训练稳定性。</td>
+      </tr>
+      <tr>
+        <td><span class="tag">Systems</span></td>
+        <td>5-8</td>
+        <td>GPU/TPU、kernels、Triton/XLA、parallelism。重点是 memory hierarchy、arithmetic intensity、communication 和 latency hiding。</td>
+      </tr>
+      <tr>
+        <td><span class="tag">Scaling</span></td>
+        <td>9, 11</td>
+        <td>用小规模实验拟合和外推。重点是 compute budget 下 model size、data size、loss 的取舍。</td>
+      </tr>
+      <tr>
+        <td><span class="tag">Inference & Eval</span></td>
+        <td>10, 12</td>
+        <td>推理解码、serving bottleneck、benchmark 的信号与噪声。重点是不要把 benchmark 当成能力本体。</td>
+      </tr>
+      <tr>
+        <td><span class="tag">Data</span></td>
+        <td>13-14</td>
+        <td>Common Crawl、过滤、去重、数据混合、合成数据。重点是数据管线通常比模型结构更决定可用性。</td>
+      </tr>
+      <tr>
+        <td><span class="tag">Post-training</span></td>
+        <td>15-17</td>
+        <td>SFT、RLHF/RLVR、GRPO、alignment、多模态。重点是 objective mismatch、reward design 和 evaluation leakage。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>视频顺序</h2>
+  <ol>
+    <li><a href="https://www.youtube.com/watch?v=JuoVZkPBiKk">Overview, Tokenization</a></li>
+    <li><a href="https://www.youtube.com/watch?v=kuYAsz7zspQ">PyTorch (einops)</a></li>
+    <li><a href="https://www.youtube.com/watch?v=lVynu4bo1rY">Architectures</a></li>
+    <li><a href="https://www.youtube.com/watch?v=cKSwj_qZ8Jg">Attention Alternatives</a></li>
+    <li><a href="https://www.youtube.com/watch?v=izZba4UA7iY">GPUs, TPUs</a></li>
+    <li><a href="https://www.youtube.com/watch?v=xnDHaNUvHBg">Kernels, Triton, XLA</a></li>
+    <li><a href="https://www.youtube.com/watch?v=SzpOcwdIL0Y">Parallelism</a></li>
+    <li><a href="https://www.youtube.com/watch?v=6-cXp-aOmdg">Parallelism</a></li>
+    <li><a href="https://www.youtube.com/watch?v=Q15rhEWZPQ4">Scaling Laws</a></li>
+    <li><a href="https://www.youtube.com/watch?v=EfM546A79aM">Inference</a></li>
+    <li><a href="https://www.youtube.com/watch?v=vTfEyOyzV9E">Scaling Laws</a></li>
+    <li><a href="https://www.youtube.com/watch?v=JpAxdTWQJxM">Evaluation</a></li>
+    <li><a href="https://www.youtube.com/watch?v=-qm0ln33G24">Data: Sources, Datasets</a></li>
+    <li><a href="https://www.youtube.com/watch?v=5sxHosTLPF8">Data</a></li>
+    <li><a href="https://www.youtube.com/watch?v=2oH6PWPrYFo">Mid/Post-Training</a></li>
+    <li><a href="https://www.youtube.com/watch?v=dIFAi87Ws4E">Post-Training - RLVR</a></li>
+    <li><a href="https://www.youtube.com/watch?v=26FtD08ZpOU">Alignment - Multimodality</a></li>
+    <li><a href="https://www.youtube.com/watch?v=9EEm4iMAF5s">Guest Lecture: Dan Fu</a></li>
+  </ol>
+  <p class="meta">备注：官方日程还列出 Daniel Selsam 的客座课；截至整理时，给定 playlist 中未看到该公开视频。</p>
+
+  <h2>作业路线</h2>
+  <table>
+    <thead>
+      <tr><th>作业</th><th>主题</th><th>建议验收标准</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://github.com/stanford-cs336/assignment1-basics">A1 Basics</a></td>
+        <td>BPE tokenizer、Transformer LM、CE loss、AdamW、training loop。</td>
+        <td>不看答案实现全部接口；能解释每个 tensor 的 shape；能从 loss/perplexity 判断训练是否异常。</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/stanford-cs336/assignment2-systems">A2 Systems</a></td>
+        <td>Profiling、FlashAttention2 in Triton、memory-efficient distributed training。</td>
+        <td>能用 profiler 找 bottleneck；能解释为什么 kernel 快或慢；能区分 compute-bound 和 memory-bound。</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/stanford-cs336/assignment3-scaling">A3 Scaling</a></td>
+        <td>组件消融、训练 API、scaling law 拟合。</td>
+        <td>能用小实验外推预算；能说清楚外推假设何时会坏。</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/stanford-cs336/assignment4-data">A4 Data</a></td>
+        <td>Common Crawl 处理、语言过滤、去重、数据混合。</td>
+        <td>能把数据清洗选择和验证 loss/benchmark 变化联系起来。</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/stanford-cs336/assignment5-alignment">A5 Alignment</a></td>
+        <td>SFT、GRPO、math reasoning；optional safety/RLHF supplement。</td>
+        <td>能解释 SFT、preference optimization、RLVR 的 objective 差异和失败模式。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>8 周查漏补缺节奏</h2>
+  <ol>
+    <li><strong>第 1 周：</strong>看 L1-L2，做 A1 tokenizer 和 resource accounting。输出一页参数量/FLOPs/显存速查。</li>
+    <li><strong>第 2 周：</strong>看 L3-L4，做 A1 Transformer/loss/AdamW/training loop。重点 debug shape 和数值稳定性。</li>
+    <li><strong>第 3 周：</strong>看 L5-L6，做 A2 profiling 和 Triton kernel 最小版本。先追正确性，再追速度。</li>
+    <li><strong>第 4 周：</strong>看 L7-L8，梳理 DP/TP/PP/FSDP/ZeRO。用小模型画通信图。</li>
+    <li><strong>第 5 周：</strong>看 L9-L11，做 A3。把 Kaplan 和 Chinchilla 的差异写成自己的决策规则。</li>
+    <li><strong>第 6 周：</strong>看 L10/L12，做 inference/evaluation 笔记。列出 benchmark leakage、contamination、variance 的检查清单。</li>
+    <li><strong>第 7 周：</strong>看 L13-L14，做 A4 的 offline subset。比较过滤、去重、混合策略带来的训练信号变化。</li>
+    <li><strong>第 8 周：</strong>看 L15-L17，做 A5 的核心测试。把 SFT、DPO/RLHF、GRPO 的目标函数和数据需求并排比较。</li>
+  </ol>
+
+  <h2>核心补充阅读</h2>
+  <ul>
+    <li><a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>：Transformer 原型。</li>
+    <li><a href="https://arxiv.org/abs/2001.08361">Scaling Laws for Neural Language Models</a>：Kaplan scaling law。</li>
+    <li><a href="https://arxiv.org/abs/2203.15556">Training Compute-Optimal Large Language Models</a>：Chinchilla compute-optimal framing。</li>
+    <li><a href="https://arxiv.org/abs/2307.08691">FlashAttention-2</a>：A2 的核心系统论文。</li>
+    <li><a href="https://arxiv.org/abs/2104.04473">Megatron-LM on GPU clusters</a>：并行训练系统。</li>
+    <li><a href="https://arxiv.org/abs/2203.02155">InstructGPT</a>：RLHF pipeline。</li>
+    <li><a href="https://arxiv.org/abs/2305.18290">DPO</a>：preference optimization 的简化路线。</li>
+    <li><a href="https://arxiv.org/abs/2402.03300">DeepSeekMath / GRPO</a>：reasoning RL 背景。</li>
+  </ul>
+
+  <h2>主动回忆问题</h2>
+  <ol>
+    <li>如果 tokenizer 的 vocab size 翻倍，embedding 参数、softmax 成本和训练数据覆盖会怎么变？</li>
+    <li>给定 batch、sequence length、hidden size、layers，哪些量影响激活显存，哪些量影响参数显存？</li>
+    <li>FlashAttention 为什么不改变 attention 数学结果，却能显著减少显存读写？</li>
+    <li>Scaling law 外推什么时候最容易失效？数据分布、优化器、模型架构、训练长度分别会怎样破坏假设？</li>
+    <li>SFT、DPO/RLHF、GRPO 各自需要什么形式的数据？优化信号和风险有什么不同？</li>
+  </ol>
+
+  <p class="meta">学习时可以随时把某个 lecture、paper 或 assignment 的困惑丢给 agent，让它围绕你的 mission 做一小节可验证的 lesson。</p>
+</main>
+</body>
+</html>
